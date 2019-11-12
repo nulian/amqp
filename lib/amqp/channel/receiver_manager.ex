@@ -104,13 +104,12 @@ defmodule AMQP.Channel.ReceiverManager do
   end
 
   defp spawn_receiver(channel, client) do
-    receiver_pid =
-      spawn(fn ->
-        Process.flag(:trap_exit, true)
-        Process.monitor(channel)
-        Process.monitor(client)
-        Receiver.handle_message(channel, client, %{})
-      end)
+    receiver_pid = spawn fn ->
+      Process.flag(:trap_exit, true)
+      Process.monitor(channel)
+      Process.monitor(self())
+      Receiver.handle_message(channel, client, %{})
+    end
 
     %__MODULE__{
       pid: receiver_pid,
